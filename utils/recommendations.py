@@ -77,15 +77,16 @@ def generate_recommendations(df: pd.DataFrame, failure_prob: float,
         })
     
     # Team Efficiency
-    revenue_per_employee = revenue / (team_size + 1)
-    if revenue_per_employee < 10000 and revenue > 0:
-        recommendations.append({
-            'category': '💡 OPTIMIZATION',
-            'priority': 'MEDIUM',
-            'issue': 'Low Revenue per Employee',
-            'action': f'${revenue_per_employee:.0f} per employee. Consider team optimization or sales enablement.',
-            'impact': 'Operational Efficiency'
-        })
+    if team_size > 0:
+        revenue_per_employee = revenue / team_size
+        if revenue_per_employee < 10000 and revenue > 0:
+            recommendations.append({
+                'category': '💡 OPTIMIZATION',
+                'priority': 'MEDIUM',
+                'issue': 'Low Revenue per Employee',
+                'action': f'${revenue_per_employee:.0f} per employee. Consider team optimization or sales enablement.',
+                'impact': 'Operational Efficiency'
+            })
     
     # Customer Base
     if customer_count < 100:

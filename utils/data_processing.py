@@ -8,11 +8,34 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-def generate_sample_data(n_samples: int = 100) -> pd.DataFrame:
+def safe_divide(numerator, denominator, default: float = 0.0):
+    """
+    Safely divide two numbers or Series, returning default if denominator is zero
+    
+    Handles both scalar and pandas Series inputs
+    """
+    if isinstance(numerator, pd.Series) and isinstance(denominator, pd.Series):
+        # Element-wise division with pandas Series
+        result = numerator / denominator.replace(0, np.nan)
+        return result.fillna(default)
+    elif isinstance(numerator, pd.Series):
+        return numerator / denominator if denominator != 0 else default
+    elif isinstance(denominator, pd.Series):
+        return numerator / denominator.replace(0, np.nan).fillna(default)
+    else:
+        # Scalar division
+        return numerator / denominator if denominator != 0 else default
+
+
+def generate_sample_data(n_samples: int = 100, seed: int = 42) -> pd.DataFrame:
     """
     Generate sample startup data for demonstration
+    
+    Args:
+        n_samples: Number of samples to generate
+        seed: Random seed for reproducibility
     """
-    np.random.seed(42)
+    np.random.seed(seed)
     
     data = {
         'startup_id': range(1, n_samples + 1),
@@ -32,9 +55,9 @@ def generate_sample_data(n_samples: int = 100) -> pd.DataFrame:
     df = pd.DataFrame(data)
     
     # Create target based on logical rules
-    df['runway_months'] = df['funding_raised'] / (df['burn_rate'] + 1)
-    df['revenue_to_cost_ratio'] = df['revenue'] / (df['burn_rate'] + 1)
-    df['customer_per_team'] = df['customer_count'] / (df['team_size'] + 1)
+    df['runway_months'] = safe_divide(df['funding_raised'], df['burn_rate'])
+    df['revenue_to_cost_ratio'] = safe_divide(df['revenue'], df['burn_rate'])
+    df['customer_per_team'] = safe_divide(df['customer_count'], df['team_size'])
     
     # Survival logic
     survival_score = (
@@ -94,22 +117,22 @@ def calculate_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     
     # Financial health features
-    df['runway_months'] = df['funding_raised'] / (df['burn_rate'] + 1)
-    df['revenue_to_cost_ratio'] = df['revenue'] / (df['burn_rate'] + 1)
-    df['burn_rate_per_employee'] = df['burn_rate'] / (df['team_size'] + 1)
-    df['revenue_per_employee'] = df['revenue'] / (df['team_size'] + 1)
+    df['runway_months'] = safe_divide(df['funding_raised'], df['burn_rate'])
+    df['revenue_to_cost_ratio'] = safe_divide(df['revenue'], df['burn_rate'])
+    df['burn_rate_per_employee'] = safe_divide(df['burn_rate'], df['team_size'])
+    df['revenue_per_employee'] = safe_divide(df['revenue'], df['team_size'])
     
     # Growth features
-    df['customer_per_team'] = df['customer_count'] / (df['team_size'] + 1)
+    df['customer_per_team'] = safe_divide(df['customer_count'], df['team_size'])
     df['customer_growth_potential'] = df['customer_count'] * (df['monthly_growth_rate'] + 1) / 100
     
     # Risk features
     df['competition_risk'] = df['market_competition'] / 10
     df['pivot_risk'] = np.minimum(df['pivots_count'] / 5, 1)
-    df['funding_adequacy'] = df['funding_raised'] / (df['burn_rate'] * 12 + 1)
+    df['funding_adequacy'] = safe_divide(df['funding_raised'], df['burn_rate'] * 12)
     
     # Experience features
-    df['avg_team_experience'] = df['team_experience'] / (df['team_size'] + 1)
+    df['avg_team_experience'] = safe_divide(df['team_experience'], df['team_size'])
     df['investor_confidence'] = df['investor_count'] / 10
     
     return df

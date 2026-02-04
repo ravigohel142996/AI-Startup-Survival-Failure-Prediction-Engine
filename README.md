@@ -261,7 +261,7 @@ MIT License - feel free to use for commercial or personal projects
 
 For issues or questions:
 - Open an issue on GitHub
-- Contact: [Your Email]
+- Star the repo if you find it useful!
 
 ---
 

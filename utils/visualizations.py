@@ -11,14 +11,23 @@ from typing import Dict, List
 def create_gauge_chart(value: float, title: str, color_scheme: str = 'probability') -> go.Figure:
     """
     Create a gauge chart for probability or score
+    
+    Args:
+        value: Value between 0-100 (will convert if between 0-1)
+        title: Chart title
+        color_scheme: 'probability' or 'score'
     """
+    # Normalize to 0-100 range if value is between 0-1
+    if value <= 1.0:
+        value = value * 100
+    
     if color_scheme == 'probability':
         # For failure probability (high is bad)
-        if value < 0.3:
+        if value < 30:
             color = 'green'
-        elif value < 0.5:
+        elif value < 50:
             color = 'yellow'
-        elif value < 0.7:
+        elif value < 70:
             color = 'orange'
         else:
             color = 'red'

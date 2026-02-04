@@ -72,12 +72,8 @@ def initialize_session_state():
 
 def display_header():
     """Display application header"""
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.title("🚀 AI Startup Survival Prediction Platform")
-        st.markdown("**Tesla Autopilot for Startups** - Predict failures, prevent disasters")
-    with col2:
-        st.image("https://img.icons8.com/fluency/96/rocket.png", width=80)
+    st.title("🚀 AI Startup Survival Prediction Platform")
+    st.markdown("**Tesla Autopilot for Startups** - Predict failures, prevent disasters")
 
 
 def train_model_section():
