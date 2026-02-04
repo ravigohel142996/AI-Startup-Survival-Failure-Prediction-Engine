@@ -46,4 +46,4 @@ env/
 !sample_data.csv
 
 # Streamlit
-.streamlit/
+.streamlit/secrets.toml
